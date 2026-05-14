@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Systems Quiz — CAP31201</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090b;
+  --surface: #18181b;
+  --surface2: #27272a;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --accent: #8b5cf6; /* Cyber Purple */
+  --accent2: #06b6d4; /* Neon Cyan */
+  --green: #10b981;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --pill-bg: rgba(139, 92, 246, 0.15);
+  --pill-border: rgba(139, 92, 246, 0.4);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+/* bg grid */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── SCREENS ── */
+.screen { display: none; animation: fadeUp 0.4s ease; }
+.screen.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+
+/* ── NAV ── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: 0.05em; color: var(--accent); }
+.nav-logo span { color: var(--muted); font-weight: 400; }
+.nav-links { display: flex; gap: 6px; }
+.nav-btn { background: transparent; border: 1px solid var(--border2); color: var(--muted); padding: 6px 14px; border-radius: 40px; font-size: 12px; font-family: var(--font-body); cursor: pointer; transition: all 0.2s; }
+.nav-btn:hover, .nav-btn.active { border-color: var(--accent); color: var(--accent); background: var(--pill-bg); }
+
+/* ── HERO ── */
+.hero { padding: 60px 0 40px; }
+.hero-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--accent); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 14px; border-radius: 40px; margin-bottom: 28px; }
+.hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+h1 { font-family: var(--font-display); font-size: clamp(36px, 6vw, 58px); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 18px; }
+h1 em { font-style: normal; color: var(--accent2); }
+.hero-sub { font-size: 15px; color: var(--muted); max-width: 480px; margin-bottom: 36px; line-height: 1.7; }
+.hero-stats { display: flex; gap: 28px; margin-bottom: 40px; }
+.stat { }
+.stat-n { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text); }
+.stat-l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+/* ── REGISTER FORM ── */
+.register-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 32px; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.register-card h2 { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.register-card p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row.full { grid-template-columns: 1fr; }
+label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 14px; padding: 10px 14px; outline: none; transition: border-color 0.2s; }
+input:focus, select:focus { border-color: var(--accent); }
+.topic-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.topic-toggle { background: var(--surface2); border: 1px solid var(--border2); color: var(--muted); padding: 6px 14px; border-radius: 40px; font-size: 12px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; }
+.topic-toggle.on { background: var(--pill-bg); border-color: var(--pill-border); color: var(--accent); }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 14px; font-weight: 700; padding: 11px 22px; border-radius: 40px; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; color: #fff; background: var(--accent); }
+.btn:hover { background: #9f7aea; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); font-weight: 500; }
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); box-shadow: none; }
+
+/* ── PROGRESS ── */
+.progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.progress-label { font-size: 12px; color: var(--muted); }
+.progress-score { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--accent); }
+.progress-track { height: 3px; background: var(--surface2); border-radius: 3px; margin-bottom: 28px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 3px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── QUESTION CARD ── */
+.q-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 28px 28px 20px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.q-section-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent2); background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); padding: 3px 10px; border-radius: 40px; margin-bottom: 14px; font-weight: 700;}
+.q-text { font-family: var(--font-display); font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--text); margin-bottom: 22px; }
+.options { display: grid; gap: 9px; }
+.opt-btn { display: flex; align-items: flex-start; gap: 12px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 13px 16px; text-align: left; cursor: pointer; width: 100%; font-family: var(--font-body); font-size: 14px; color: var(--text); transition: all 0.2s; line-height: 1.5; }
+.opt-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(139, 92, 246, 0.08); }
+.opt-btn:disabled { cursor: default; }
+.opt-letter { min-width: 24px; height: 24px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--muted); font-family: var(--font-display); flex-shrink: 0; margin-top: 1px; }
+.opt-btn.correct { border-color: var(--green); background: rgba(16, 185, 129, 0.08); }
+.opt-btn.correct .opt-letter { background: var(--green); color: #000; border-color: var(--green); }
+.opt-btn.wrong { border-color: var(--red); background: rgba(239, 68, 68, 0.08); }
+.opt-btn.wrong .opt-letter { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* ── FEEDBACK ── */
+.feedback-box { border-radius: 10px; padding: 14px 16px; font-size: 13px; line-height: 1.65; margin-bottom: 14px; display: none; }
+.feedback-box.correct { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+.feedback-box.wrong { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+.feedback-box strong { display: block; margin-bottom: 4px; font-family: var(--font-display); font-size: 13px; }
+
+/* ── DISCUSSION ── */
+.discussion-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; display: none; }
+.discussion-section h4 { font-family: var(--font-display); font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+.comments-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; max-height: 260px; overflow-y: auto; }
+.comment { background: var(--surface2); border-radius: 8px; padding: 10px 12px; font-size: 13px; border-left: 2px solid var(--accent); }
+.comment-author { font-weight: 600; color: var(--accent2); font-size: 12px; margin-bottom: 3px; }
+.comment-text { color: var(--text); line-height: 1.5; }
+.comment-time { font-size: 10px; color: var(--muted); margin-top: 4px; }
+.comment-input-row { display: flex; gap: 8px; }
+.comment-input-row input { flex: 1; }
+.no-comments { font-size: 12px; color: var(--muted); font-style: italic; }
+
+/* ── NAV BUTTONS ── */
+.quiz-nav { display: flex; align-items: center; justify-content: space-between; }
+
+/* ── RESULT ── */
+.result-hero { text-align: center; padding: 60px 0 40px; }
+.result-ring { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--accent) var(--pct, 0%), var(--surface2) 0%); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 0 40px rgba(139, 92, 246, 0.2); }
+.result-ring-inner { width: 108px; height: 108px; border-radius: 50%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.result-pct { font-family: var(--font-display); font-size: 32px; font-weight: 800; }
+.result-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.result-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 10px; }
+.result-sub { color: var(--muted); max-width: 480px; margin: 0 auto 32px; font-size: 14px; line-height: 1.65; }
+.result-breakdown { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 36px; }
+.breakdown-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 18px; text-align: center; }
+.breakdown-n { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+.breakdown-n.green { color: var(--green); }
+.breakdown-n.red { color: var(--red); }
+.breakdown-n.amber { color: var(--amber); }
+
+/* ── LEADERBOARD ── */
+.lb-card { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.lb-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.lb-header h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; }
+.lb-row { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: var(--surface2); }
+.lb-rank { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--muted); width: 24px; text-align: center; flex-shrink: 0; }
+.lb-rank.gold { color: #f59e0b; }
+.lb-rank.silver { color: #d4d4d8; }
+.lb-rank.bronze { color: #b45309; }
+.lb-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.lb-info { flex: 1; }
+.lb-name { font-size: 14px; font-weight: 600; }
+.lb-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.lb-score-wrap { text-align: right; }
+.lb-score { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--accent); }
+.lb-pct { font-size: 11px; color: var(--muted); }
+.lb-empty { padding: 36px 24px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* ── BADGES ── */
+.badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 40px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.badge-you { background: rgba(139, 92, 246, 0.15); color: var(--accent); border: 1px solid var(--pill-border); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+@media(max-width: 560px) { .form-row { grid-template-columns: 1fr; } .result-breakdown { grid-template-columns: 1fr 1fr; } h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="nav-logo">CAP31201<span>/databases</span></div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="showScreen('home')">System Quiz</button>
+      <button class="nav-btn" onclick="showScreen('leaderboard')">Server Logs</button>
+    </div>
+  </nav>
+
+  <div id="screen-home" class="screen active">
+    <div class="hero">
+      <div class="hero-tag">CAP31201 · DATABASE MANAGEMENT</div>
+      <h1>Master <em>Relational</em><br>Databases</h1>
+      <p class="hero-sub">40 comprehensive questions covering the Database Approach, MS Access Objects, Table Design, Relationships, and Query generation.</p>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-n">40</div><div class="stat-l">Queries</div></div>
+        <div class="stat"><div class="stat-n">6</div><div class="stat-l">Modules</div></div>
+        <div class="stat"><div class="stat-n" id="stat-players">0</div><div class="stat-l">Connections</div></div>
+      </div>
+    </div>
+
+    <div class="register-card">
+      <h2>Initialize Session</h2>
+      <p>Enter your credentials to track your progress on the database server.</p>
+      <div class="form-row">
+        <div>
+          <label>Administrator Name</label>
+          <input type="text" id="inp-name" placeholder="e.g. Ernest Mbamera">
+        </div>
+        <div>
+          <label>Access Key (Reg #)</label>
+          <input type="text" id="inp-reg" placeholder="e.g. 2501013**">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div>
+          <label>Filter Database Modules</label>
+          <div class="topic-grid" id="topic-grid"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()" style="width:100%">Compile Queries →</button>
+    </div>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div style="padding-top: 24px;">
+      <div class="progress-header">
+        <span class="progress-label" id="prog-label">Query 1 of 40</span>
+        <span class="progress-score" id="prog-score">0 pts</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+
+      <div class="q-card">
+        <div class="q-section-tag" id="q-section"></div>
+        <div class="q-text" id="q-text"></div>
+        <div class="options" id="options"></div>
+      </div>
+
+      <div class="feedback-box" id="feedback"></div>
+
+      <div class="discussion-section" id="discussion-section">
+        <h4>💬 System Logs</h4>
+        <div class="comments-list" id="comments-list"></div>
+        <div class="comment-input-row">
+          <input type="text" id="comment-input" placeholder="Add an annotation…" maxlength="200" onkeydown="if(event.key==='Enter')postComment()">
+          <button class="btn btn-ghost btn-sm" onclick="postComment()">Log</button>
+        </div>
+      </div>
+
+      <div class="quiz-nav" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="showScreen('home')">← Disconnect</button>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQ()" style="display:none">Next Query →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-result" class="screen">
+    <div class="result-hero">
+      <div class="result-ring" id="result-ring">
+        <div class="result-ring-inner">
+          <div class="result-pct" id="result-pct">0%</div>
+          <div class="result-label">accuracy</div>
+        </div>
+      </div>
+      <div class="result-title" id="result-title">Compilation Complete</div>
+      <div class="result-sub" id="result-sub"></div>
+      <div class="result-breakdown">
+        <div class="breakdown-card"><div class="breakdown-n" style="color:var(--green)" id="bd-correct">0</div><div class="breakdown-l">Valid</div></div>
+        <div class="breakdown-card"><div class="breakdown-n" style="color:var(--red)" id="bd-wrong">0</div><div class="breakdown-l">Errors</div></div>
+        <div class="breakdown-card"><div class="breakdown-n" style="color:var(--amber)" id="bd-total">0</div><div class="breakdown-l">Total</div></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-ghost" onclick="restartQuiz()">Reboot</button>
+        <button class="btn btn-primary" onclick="showScreen('leaderboard')">View Logs →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-leaderboard" class="screen">
+    <div style="padding-top: 32px;">
+      <h2 style="font-family:var(--font-display);font-size:26px;font-weight:800;margin-bottom:6px;">Server Logs</h2>
+      <p class="text-muted" style="font-size:13px;margin-bottom:28px;">Database rankings — all authorized connections this session.</p>
+      <div class="lb-card">
+        <div class="lb-header">
+          <h3>Top Administrators</h3>
+          <span class="text-muted" style="font-size:12px" id="lb-count">0 connections</span>
+        </div>
+        <div id="lb-rows"></div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn btn-ghost" onclick="showScreen('home')">Return to Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// DATABASE QUESTION BANK (40 Questions)
+const QUESTIONS = [
+  // Database Definitions & Basics (Slide 07)
+  {s:"Database Concepts", q:"How is a 'database' defined in the context of computer applications?", opts:["A random collection of unrelated files", "An organized collection of related data structured for efficient retrieval", "A physical piece of hardware used to store web pages", "A mathematical algorithm for sorting numbers"], ans:1, exp:"A database is an organized collection of related data that is structured and stored in a way that enables efficient retrieval, management, and updating."},
+  {s:"Database Concepts", q:"Which of the following represents the correct hierarchy of data in a database, from largest to smallest?", opts:["Database > File > Record > Field > Character", "File > Database > Field > Record > Character", "Database > Record > File > Character > Field", "Character > Field > Record > File > Database"], ans:0, exp:"The correct hierarchy is Database (largest) > File > Record > Field > Character (smallest, represented by a byte)."},
+  {s:"Database Concepts", q:"In a database, what is a 'Record'?", opts:["A collection of related files", "A generalized class of people or places", "A collection of related fields", "The basic building block of information (a byte)"], ans:2, exp:"A record is a collection of related fields (e.g., an entire row containing a student's ID, Name, and DOB)."},
+  {s:"Database Concepts", q:"Which term describes a generalized class of people, places, or things for which data is collected?", opts:["Attribute", "Key", "Character", "Entity"], ans:3, exp:"An Entity is a generalized class (e.g., Customer, Employee) for which data are collected, stored, and maintained."},
+  {s:"Database Concepts", q:"In a table storing Employee data, 'Last Name' and 'Hire Date' are examples of:", opts:["Entities", "Keys", "Attributes", "Files"], ans:2, exp:"Attributes are characteristics of an entity; something the entity is identified by, such as a name or date."},
+  {s:"Database Concepts", q:"Why do we use validation rules when building a database?", opts:["To automatically generate reports", "To improve accuracy and consistency by reducing errors and duplicates", "To allow multiple users to access the data simultaneously", "To export data to Excel automatically"], ans:1, exp:"Validation rules reduce errors and duplicates, which improves the overall accuracy and consistency of the database (e.g., preventing an invalid phone number)."},
+
+  // File-Based vs Database Approach (Slide 07)
+  {s:"File-Based vs Database", q:"Which of the following is a major limitation of the File-Based Processing approach?", opts:["It forces all departments to share one central pool of data", "Data dependence, where file structure is embedded directly in the program code", "It automatically generates too many complex queries", "It prevents users from duplicating data"], ans:1, exp:"In file-based processing, data dependence is a limitation because the structure of the data file is strictly defined within the specific application program's code."},
+  {s:"File-Based vs Database", q:"In a file-based system, different departments (like Payroll and Invoicing) often maintain their own separate systems. What major problem does this cause?", opts:["Excessive data sharing", "Centralized security breaches", "Duplication of data and wasted storage space", "Automatic data updates across departments"], ans:2, exp:"Because each program maintains its own set of data, the same data is often duplicated, leading to wasted space and inconsistent values between departments."},
+  {s:"File-Based vs Database", q:"How does the 'Database Approach' solve the isolation problem of the file-based approach?", opts:["By keeping all data on completely separate physical hard drives", "By forcing users to write their own program code", "By using a shared pool of related data that multiple application programs can access", "By deleting duplicate records permanently without warning"], ans:2, exp:"In the database approach, rather than having separate data files, a pool of related data is shared and accessed by multiple application programs."},
+  {s:"File-Based vs Database", q:"What does 'DBMS' stand for?", opts:["Data Building Management Structure", "Digital Business Maintenance System", "Database Management System", "Data Block Memory Storage"], ans:2, exp:"DBMS stands for Database Management System."},
+  {s:"File-Based vs Database", q:"What is the primary role of a Database Management System (DBMS)?", opts:["To write operating system code", "To act as a data librarian supervising the transfer of data between the end user and the database", "To physically repair broken hard drives", "To replace spreadsheet software entirely for all mathematical calculations"], ans:1, exp:"A DBMS acts as a complex software 'librarian' that enables users to define, create, maintain, and control access to the database."},
+  {s:"File-Based vs Database", q:"Which of the following is NOT an example of a DBMS?", opts:["Oracle Database", "MySQL", "Microsoft Word", "PostgreSQL"], ans:2, exp:"Oracle, MySQL, and PostgreSQL are all DBMS applications. Microsoft Word is a word processor."},
+
+  // MS Access vs Excel (Slide 07)
+  {s:"Access vs Excel", q:"While MS Access and MS Excel share some similarities, Excel is primarily designed for:", opts:["Managing massive, complex data relationships", "Data analysis, calculations, and charting using a grid format", "Acting as an enterprise-level server database", "Long-term secure storage of multi-user structured databases"], ans:1, exp:"Excel is primarily used for data analysis, calculations, and charting, and is organized in a grid format. Access is used for database management and data manipulation."},
+  {s:"Access vs Excel", q:"If you need to handle complex data relationships and advanced querying using SQL, which tool should you choose?", opts:["MS Excel", "MS PowerPoint", "MS Access", "Notepad"], ans:2, exp:"Access provides strong capabilities for managing complex data relationships and advanced querying capabilities using SQL, whereas Excel is limited in this regard."},
+  {s:"Access vs Excel", q:"MS Access is classified specifically as a:", opts:["Relational Database Management System (RDBMS)", "Flat-file Operating System", "Document-based NoSQL database", "Statistical Analysis Software"], ans:0, exp:"MS Access is an RDBMS, meaning it uses relational database concepts and stores data in linked tables."},
+
+  // Creating Databases & Interface (Slide 08)
+  {s:"MS Access Interface", q:"When you first open MS Access, what option allows you to start a database completely from scratch?", opts:["Northwind starter edition", "Blank desktop database", "Asset tracking template", "Event management"], ans:1, exp:"Clicking 'Blank desktop database' from the Welcome screen allows you to start a database from scratch, as opposed to using a pre-built template."},
+  {s:"MS Access Interface", q:"Which primary navigation aid, located on the left side of the Access screen, shows all your tables, queries, forms, and reports?", opts:["The Ribbon", "The Navigation Pane", "The Contextual Tab", "The Quick Access Toolbar"], ans:1, exp:"The Navigation Pane (on the left) displays all the objects included in your current database and allows you to navigate between them."},
+  {s:"MS Access Interface", q:"The customizable toolbar located at the very top (above the Ribbon) that holds commands like Save, Undo, and Redo is the:", opts:["Contextual Tab", "Quick Access Toolbar", "Object Window", "Format Tab"], ans:1, exp:"The Quick Access Toolbar is located above the Ribbon and holds frequently used commands for quick access."},
+  {s:"MS Access Interface", q:"Which tab on the Access Ribbon contains commands to create new tables, queries, forms, and reports?", opts:["Home Tab", "External Data Tab", "Create Tab", "Database Tools Tab"], ans:2, exp:"The Create tab is used extensively to generate new objects like tables, queries, forms, reports, and macros in the database."},
+  {s:"MS Access Interface", q:"If you want to import data from an Excel spreadsheet into your Access database, which Ribbon tab would you use?", opts:["Home", "Create", "External Data", "Database Tools"], ans:2, exp:"The External Data tab allows you to integrate Access with other sources, including importing and exporting data to Excel, CSV, PDF, etc."},
+  {s:"MS Access Interface", q:"Which Ribbon tab contains the commands to create relationships between tables and to compact/repair the database?", opts:["Database Tools", "External Data", "Home", "Create"], ans:0, exp:"The Database Tools tab deals with the inner workings of Access, such as establishing relationships and running maintenance tools like Compact and Repair."},
+
+  // Access Objects (Slide 08)
+  {s:"Access Objects", q:"In MS Access, what is the object where the actual data is defined, structured, and stored in rows and columns?", opts:["Query", "Report", "Table", "Macro"], ans:2, exp:"Tables are the foundation of the database where the actual data is stored in records (rows) and fields (columns)."},
+  {s:"Access Objects", q:"Which Access object is primarily designed to provide a user-friendly interface for entering or displaying data one record at a time?", opts:["Table", "Form", "Query", "Module"], ans:1, exp:"A Form is designed to ease the data entry process, often looking like a paper form, so users don't have to enter data directly into a raw table grid."},
+  {s:"Access Objects", q:"If you want to view, change, and analyze specific subsets of data from multiple tables, which object should you create?", opts:["Macro", "Report", "Query", "Table"], ans:2, exp:"Queries pull out specific data. They are used to view, change, and analyze data in different ways based on criteria you set."},
+  {s:"Access Objects", q:"Which object is specifically designed to format, calculate, and present your data in a printed format?", opts:["Form", "Query", "Macro", "Report"], ans:3, exp:"A Report is an effective way to present data in a printed format. If you want to print records, you design a report."},
+  {s:"Access Objects", q:"What is the function of a 'Macro' in MS Access?", opts:["It stores the actual text data of the database", "It is a set of actions that automates common tasks, like opening a form or printing a report", "It provides a visual layout for printing", "It establishes the primary key relationship between two tables"], ans:1, exp:"A macro automates common tasks. It is a set of one or more actions that perform operations when triggered (e.g., clicking a button)."},
+  {s:"Access Objects", q:"What is an Access 'Module'?", opts:["A physical table storing passwords", "A pre-designed template for a database", "A collection of Visual Basic for Applications (VBA) declarations and procedures", "The pane on the left side of the screen"], ans:2, exp:"A module is a collection of VBA declarations and procedures stored together as a unit for advanced programming."},
+
+  // Table Design & Primary Keys (Slide 08)
+  {s:"Table Design", q:"When creating a table, which view allows you to see the data exactly like an Excel grid (rows and columns)?", opts:["Design View", "Datasheet View", "Layout View", "SQL View"], ans:1, exp:"Datasheet View displays the table as a grid, showing the actual data with fields as columns and records as rows."},
+  {s:"Table Design", q:"Which view is highly recommended for configuring the structure of a table, allowing you to easily set Data Types and Field Properties?", opts:["Datasheet View", "Design View", "Form View", "Print Preview"], ans:1, exp:"Design View doesn't display data; instead, it lists fields vertically and provides a bottom pane for setting detailed field properties like size and validation rules."},
+  {s:"Table Design", q:"In Table Design View, the screen is split into two panes. What is the Bottom Pane used for?", opts:["Entering the field names", "Selecting the data type", "Specifying detailed field properties (like Field Size or Required status)", "Writing SQL code"], ans:2, exp:"The top pane is for field names and data types, while the bottom pane handles specific Field Properties (e.g., Default Value, Validation Rules, Required)."},
+  {s:"Table Design", q:"What is the purpose of a 'Primary Key' in an Access table?", opts:["To encrypt the table's data", "To uniquely identify each record in the table", "To allow duplicate records to be saved", "To connect the database to the internet"], ans:1, exp:"A primary key is a field that uniquely identifies each record in the table (e.g., a Student ID or Book ID), ensuring no two records are completely identical."},
+  {s:"Table Design", q:"How do you know visually that a field has been set as the Primary Key in Design View?", opts:["The text turns red", "A little key icon appears next to the field name on the left", "The field moves to the bottom of the list", "A padlock icon appears on the ribbon"], ans:1, exp:"When the primary key is set, a small key icon appears to the left of the field name in Design View."},
+  {s:"Table Design", q:"If you want Access to automatically populate a field with a unique, incrementing number for every new record, which Data Type should you choose?", opts:["Short Text", "Number", "AutoNumber", "Date/Time"], ans:2, exp:"The AutoNumber data type tells Access to automatically assign a unique, sequential number to each new record added."},
+  {s:"Table Design", q:"In Field Properties, changing the 'Required' property to 'Yes' means:", opts:["The field must contain a number", "The user must enter a value; the field cannot be left completely blank", "The field will automatically delete zero-length strings", "The field is converted to a primary key"], ans:1, exp:"Making a field 'Required' means that every record must have a value entered into that field to be saved."},
+
+  // Relationships (Slide 08)
+  {s:"Relationships", q:"In a relational database, what do we call the field in a 'child' table that matches the primary key in a 'parent' table?", opts:["Master key", "Foreign key", "Secondary key", "Junction key"], ans:1, exp:"The field in the child table that links to the primary key of the parent table is referred to as the foreign key."},
+  {s:"Relationships", q:"An artist can release many albums, but a specific album is released by only one artist. This is an example of which type of relationship?", opts:["One-to-One", "One-to-Many", "Many-to-Many", "Zero-to-Many"], ans:1, exp:"This is a One-to-Many relationship: one record in the Artists table links to multiple records in the Albums table."},
+  {s:"Relationships", q:"A person has exactly one passport, and that passport belongs exclusively to that person. This represents what type of relationship?", opts:["One-to-One", "One-to-Many", "Many-to-Many", "Parent-to-Child"], ans:0, exp:"In a One-to-One relationship, a row in Table A can have only one matching row in Table B, and vice versa."},
+  {s:"Relationships", q:"Students can enroll in many courses, and each course can have many students. To map this 'Many-to-Many' relationship in Access, you must create a:", opts:["Primary Key", "Foreign Database", "Junction Table", "Validation Rule"], ans:2, exp:"A Many-to-Many relationship requires a third table, called a Junction Table (e.g., an Enrollment table), to act as a bridge recording every combination."},
+
+  // Forms, Queries & Exporting (Slide 08)
+  {s:"Queries & Forms", q:"When creating a query in Access, which view allows advanced users to manually type the query using code?", opts:["Design View", "Datasheet View", "SQL View", "Layout View"], ans:2, exp:"SQL (Structured Query Language) View allows users to construct or modify their queries by writing actual SQL code behind the scenes."},
+  {s:"Queries & Forms", q:"When working with Forms, which view provides a visual layout for editing the form while it actually displays real data?", opts:["Design View", "Datasheet View", "Layout View", "Form View"], ans:2, exp:"Layout View bears a close resemblance to the actual form and allows you to edit properties while real data is visible in the fields."},
+  {s:"Queries & Forms", q:"In Form editing, which Ribbon tab would you use to change the color of the form, add a logo, or insert a button control?", opts:["Format Tab", "Arrange Tab", "Design Tab", "Database Tools Tab"], ans:2, exp:"The Design Tab (Form Design) is used to change colors, themes, add logos, titles, and insert form controls like buttons and text boxes."},
+  {s:"Queries & Forms", q:"If you want to export the results of an Access query into an Excel spreadsheet, which Ribbon tab do you use?", opts:["Home", "Create", "External Data", "Database Tools"], ans:2, exp:"The External Data tab contains all the options for exporting data out of Access into formats like Excel, PDF, or text files."}
+];
+
+const TOPICS = [...new Set(QUESTIONS.map(q => q.s))];
+const AVATARS = ['#8b5cf6','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899','#3b82f6'];
+
+let activeTopics = new Set(TOPICS);
+let quiz = [];
+let cur = 0, score = 0, answered = false;
+let currentUser = {name:'', reg:''};
+let leaderboard = JSON.parse(localStorage.getItem('cap31201_db_lb') || '[]');
+let comments = JSON.parse(localStorage.getItem('cap31201_db_comments') || '{}');
+
+function saveComments(){ localStorage.setItem('cap31201_db_comments', JSON.stringify(comments)); }
+function saveLB(){ localStorage.setItem('cap31201_db_lb', JSON.stringify(leaderboard)); }
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if(id==='leaderboard') { renderLB(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); }
+  else document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function buildTopicGrid(){
+  const g = document.getElementById('topic-grid');
+  g.innerHTML='';
+  TOPICS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'topic-toggle on';
+    b.textContent = t;
+    b.onclick = function(){
+      if(activeTopics.has(t)){
+        if(activeTopics.size === 1) return;
+        activeTopics.delete(t); b.className='topic-toggle';
+      } else {
+        activeTopics.add(t); b.className='topic-toggle on';
+      }
+    };
+    g.appendChild(b);
+  });
+}
+
+function updateStatPlayers(){
+  document.getElementById('stat-players').textContent = leaderboard.length;
+}
+
+function startQuiz(){
+  const name = document.getElementById('inp-name').value.trim();
+  const reg = document.getElementById('inp-reg').value.trim();
+  if(!name){ alert('Please enter your Administrator Name to continue.'); return; }
+  currentUser = { name, reg };
+  quiz = QUESTIONS.filter(q => activeTopics.has(q.s)).sort(()=>Math.random()-0.5);
+  if(quiz.length === 0){ alert('Select at least one module.'); return; }
+  cur = 0; score = 0; answered = false;
+  showScreen('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  if(cur >= quiz.length){ endQuiz(); return; }
+  const q = quiz[cur];
+  const pct = (cur / quiz.length) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Query ${cur+1} of ${quiz.length}`;
+  document.getElementById('prog-score').textContent = `${score} valid`;
+  document.getElementById('q-section').textContent = q.s;
+  document.getElementById('q-text').textContent = q.q;
+  
+  const opts = document.getElementById('options');
+  opts.innerHTML='';
+  
+  // Randomize options
+  const shuffled = q.opts.map((opt, i) => ({opt, isCorrect: i===q.ans})).sort(() => Math.random() - 0.5);
+  const correctIdx = shuffled.findIndex(o => o.isCorrect);
+
+  const letters = ['A','B','C','D'];
+  shuffled.forEach((o,i)=>{
+    const b = document.createElement('button');
+    b.className='opt-btn';
+    b.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${o.opt}</span>`;
+    b.onclick = function(){ if(!answered) select(i, correctIdx, b, q.exp); };
+    opts.appendChild(b);
+  });
+  
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+  answered = false;
+  window.scrollTo(0,0);
+}
+
+function select(selectedIdx, correctIdx, btn, exp){
+  answered = true;
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  
+  if(selectedIdx === correctIdx){
+    btn.classList.add('correct');
+    score++;
+    fb.className='feedback-box correct';
+    fb.innerHTML=`<strong>✓ Valid Syntax!</strong><br>${exp}`;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt-btn')[correctIdx].classList.add('correct');
+    fb.className='feedback-box wrong';
+    fb.innerHTML=`<strong>✗ Syntax Error.</strong><br>${exp}`;
+  }
+  
+  fb.style.display='block';
+  document.getElementById('next-btn').style.display='inline-flex';
+  document.getElementById('prog-score').textContent = `${score} valid`;
+}
+
+function nextQ(){ cur++; renderQ(); }
+
+function showDiscussion(idx){
+  const key = `db_${quiz[idx].q.slice(0,20).replace(/[^a-zA-Z0-9]/g, "")}`;
+  const ds = document.getElementById('discussion-section');
+  ds.style.display='block';
+  renderComments(key);
+  document.getElementById('comment-input').dataset.key = key;
+}
+
+function renderComments(key){
+  const list = document.getElementById('comments-list');
+  const c = comments[key] || [];
+  if(c.length === 0){
+    list.innerHTML='<div class="no-comments">No server logs recorded for this query.</div>';
+    return;
+  }
+  list.innerHTML = c.map(cm=>`
+    <div class="comment">
+      <div class="comment-author">${escHtml(cm.name)} ${cm.reg ? '<span style="color:var(--muted);font-weight:400">· '+escHtml(cm.reg)+'</span>' : ''}</div>
+      <div class="comment-text">${escHtml(cm.text)}</div>
+      <div class="comment-time">${cm.time}</div>
+    </div>
+  `).join('');
+  list.scrollTop = list.scrollHeight;
+}
+
+function postComment(){
+  const inp = document.getElementById('comment-input');
+  const key = inp.dataset.key;
+  const text = inp.value.trim();
+  if(!text) return;
+  if(!comments[key]) comments[key] = [];
+  const now = new Date();
+  comments[key].push({
+    name: currentUser.name, reg: currentUser.reg, text,
+    time: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ' · ' + now.toLocaleDateString()
+  });
+  saveComments();
+  inp.value='';
+  renderComments(key);
+}
+
+function endQuiz(){
+  const total = quiz.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('result-ring').style.setProperty('--pct', pct + '%');
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('bd-correct').textContent = score;
+  document.getElementById('bd-wrong').textContent = total - score;
+  document.getElementById('bd-total').textContent = total;
+  
+  let title, sub;
+  if(pct >= 90){ title='Database Administrator!'; sub='Exceptional execution. Your knowledge of Access and DBMS architecture is top tier.'; }
+  else if(pct >= 75){ title='Query Successful!'; sub='Strong performance. Review the specific view types (Datasheet vs Design) to reach 100%.'; }
+  else if(pct >= 60){ title='Compilation Warning.'; sub='Solid foundation, but you need to revise relationships and Access interface objects.'; }
+  else { title='Connection Failed.'; sub='A thorough review of the CAP31201 Database slides is required. Reboot the system and try again.'; }
+  
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-sub').textContent = sub;
+  
+  const entry = {
+    name: currentUser.name, reg: currentUser.reg,
+    score, total, pct,
+    time: new Date().toLocaleDateString(),
+    color: AVATARS[Math.abs(hashStr(currentUser.name)) % AVATARS.length]
+  };
+  leaderboard.push(entry);
+  leaderboard.sort((a,b)=>b.pct-a.pct || b.score-a.score);
+  saveLB();
+  document.getElementById('stat-players').textContent = leaderboard.length;
+  showScreen('result');
+}
+
+function restartQuiz(){ showScreen('home'); }
+
+function renderLB(){
+  const rows = document.getElementById('lb-rows');
+  document.getElementById('lb-count').textContent = `${leaderboard.length} connection${leaderboard.length!==1?'s':''}`;
+  if(leaderboard.length === 0){
+    rows.innerHTML = '<div class="lb-empty">No connections logged. Initialize the first sequence!</div>';
+    return;
+  }
+  const rankClass = ['gold','silver','bronze'];
+  const rankEmoji = ['1st','2nd','3rd'];
+  rows.innerHTML = leaderboard.slice(0,20).map((e,i)=>{
+    const initials = e.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    const isYou = currentUser.name && e.name === currentUser.name;
+    return `<div class="lb-row">
+      <div class="lb-rank ${rankClass[i]||''}">${i<3?rankEmoji[i]:i+1}</div>
+      <div class="lb-avatar" style="background:${e.color}22;color:${e.color}">${initials}</div>
+      <div class="lb-info">
+        <div class="lb-name">${escHtml(e.name)} ${isYou?'<span class="badge badge-you">you</span>':''}</div>
+        <div class="lb-meta">${e.reg ? escHtml(e.reg)+' · ' : ''}${e.time}</div>
+      </div>
+      <div class="lb-score-wrap">
+        <div class="lb-score">${e.score}/${e.total}</div>
+        <div class="lb-pct">${e.pct}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function hashStr(s){ let h=0; for(let c of s){ h=((h<<5)-h)+c.charCodeAt(0); h|=0; } return h; }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+buildTopicGrid();
+document.getElementById('stat-players').textContent = leaderboard.length;
+</script>
+</body>
+</html>
